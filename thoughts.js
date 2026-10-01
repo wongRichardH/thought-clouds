@@ -1,14 +1,12 @@
 /* ============================================================
    Your thoughts live here.
 
-   Add a new thought by copying one block and pasting it into the
-   array. The `answer` field accepts Markdown — paste a Claude
-   answer straight in (headings with ##, **bold**, lists with -,
-   tables with | pipes |, links with [text](url)).
+   Each entry is one cloud. Just ask Claude to add a new thought and
+   it will drop a new entry into this array.
 
    Fields:
      question : short text shown on the cloud (required)
-     date     : "YYYY-MM-DD" — used to sort newest-first (optional)
+     date     : "YYYY-MM-DD" — sorts newest-first (optional)
      tags     : array of short labels (optional)
      answer   : the full written-out thought, in Markdown (required)
    ============================================================ */
@@ -71,6 +69,4 @@ The garment itself barely changed in 90 years. What changed is who wore it and w
 - The newest trend in fashion is a wardrobe staple you probably own — NPR
 - Why Do We Call It a 'Tank Top'? — Word Smarts`
   }
-
-  // ,{ question: "...", date: "2026-10-01", tags: ["..."], answer: \`...\` }
 ];
