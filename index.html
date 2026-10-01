@@ -1,20 +1,30 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Thought Clouds</title>
-<meta name="description" content="A sky of written-out thoughts. Click a cloud to read the answer underneath." />
-<link rel="stylesheet" href="styles.css" />
+<meta name="description" content="A sky of written-out thoughts. Scroll the feed; drift through the months on the timeline." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
 
 <header class="sky-header">
   <h1 class="site-title">Thought&nbsp;Clouds</h1>
   <p class="site-tagline">A sky full of questions. Tap a cloud to read what's underneath.</p>
 </header>
 
-<main id="sky" class="sky" aria-live="polite">
-  <!-- clouds injected by app.js -->
-</main>
+<div class="layout">
+  <main id="feed" class="feed" aria-live="polite">
+    <!-- month groups + clouds injected by app.js -->
+  </main>
 
-<p id="empty" class="empty" hidden>No clouds match that search.</p>
+  <aside class="timeline" aria-label="Timeline of months">
+    <nav id="tl-nav" class="tl-nav">
+      <!-- month markers injected by app.js -->
+    </nav>
+  </aside>
+</div>
+
+<p id="empty" class="empty" hidden>The sky is clear — no thoughts yet.</p>
 
 <!-- Reading overlay -->
 <div id="overlay" class="overlay" hidden>
