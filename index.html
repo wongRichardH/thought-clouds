@@ -1,0 +1,34 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Thought Clouds</title>
+<meta name="description" content="A sky of written-out thoughts. Click a cloud to read the answer underneath." />
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+
+<header class="sky-header">
+  <h1 class="site-title">Thought&nbsp;Clouds</h1>
+  <p class="site-tagline">A sky full of questions. Tap a cloud to read what's underneath.</p>
+</header>
+
+<main id="sky" class="sky" aria-live="polite">
+  <!-- clouds injected by app.js -->
+</main>
+
+<p id="empty" class="empty" hidden>No clouds match that search.</p>
+
+<!-- Reading overlay -->
+<div id="overlay" class="overlay" hidden>
+  <div class="overlay-backdrop" data-close></div>
+  <article class="reader" role="dialog" aria-modal="true" aria-labelledby="reader-title">
+    <button class="reader-close" data-close aria-label="Close">&times;</button>
+    <div class="reader-meta">
+      <span id="reader-date" class="reader-date"></span>
+      <span id="reader-tags" class="reader-tags"></span>
+    </div>
+    <h2 id="reader-title" class="reader-title"></h2>
+    <div id="reader-body" class="reader-body"></div>
+  </article>
+</div>
+
+<script src="thoughts.js"></script>
+<script src="app.js"></script>
