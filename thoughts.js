@@ -78,6 +78,208 @@ The truth is probably a blend, varying night to night.
   /* ==================== END SAMPLE THOUGHTS ==================== */
 
   {
+    question: "What are embeddings and vector search for LLMs?",
+    date: "2026-10-01",
+    tags: ["ai", "llms", "rag"],
+    answer: `Embeddings and vector search are the two core technologies that let LLM-powered apps **find relevant information** before answering.
+
+## 1. What is an embedding?
+
+An embedding converts text into a list of numbers (a *vector*) that captures its **meaning**.
+
+| Text | Simplified embedding |
+|------|----------------------|
+| "I love dogs" | [0.82, -0.11, 0.45, ...] |
+| "Puppies are adorable" | [0.79, -0.09, 0.48, ...] |
+| "Stock market crash" | [-0.32, 0.91, -0.41, ...] |
+
+Real vectors are often **hundreds or thousands** of dimensions long. The key idea:
+
+> Similar meanings produce vectors that sit **close together** in mathematical space.
+
+So "I love dogs" and "Puppies are adorable" end up near each other even though they share almost no exact words.
+
+## 2. Why not just search by keywords?
+
+Traditional keyword search is literal:
+
+\`\`\`
+Search: "car"
+  ✓ car insurance
+  ✓ car dealership
+  ✗ automobile repair      (missed)
+  ✗ vehicle registration   (missed)
+\`\`\`
+
+Embedding search understands **meaning**:
+
+\`\`\`
+Search: "car"
+  ✓ automobile repair
+  ✓ vehicle registration
+  ✓ SUV maintenance
+  ✓ car insurance
+\`\`\`
+
+...because all of those concepts are close in vector space.
+
+## 3. What is vector search?
+
+Vector search finds the stored vectors **closest** to a query vector. Picture documents plotted in space:
+
+\`\`\`
+Dogs      Cats
+    *
+  *
+*
+                Cars
+                   *
+                    *
+\`\`\`
+
+A user asks "cute puppies" → convert to an embedding → return the nearest vectors:
+
+- "Dogs are loyal pets"
+- "Puppy training guide"
+- "Best dog food"
+
+## 4. How this works with LLMs (RAG)
+
+Say you're building a company chatbot with \`employee_handbook.pdf\`, \`benefits.pdf\`, and \`vacation_policy.pdf\`.
+
+1. **Split** the documents into chunks.
+2. **Embed** each chunk into a vector and store it in a vector database.
+3. **User asks:** "How many vacation days do I get?"
+4. **Embed the question** and run a vector search for the closest chunks.
+5. **Feed** the retrieved chunk to the LLM as context:
+
+\`\`\`
+Context:
+Employees receive 15 PTO days...
+
+Question:
+How many vacation days do I get?
+\`\`\`
+
+Now the model answers accurately. This pattern is called **RAG** (Retrieval-Augmented Generation).
+
+## 5. Why not just put everything in the prompt?
+
+With 10,000 PDFs you can't fit it all in the context window. Vector search acts like a **librarian**: it finds the relevant documents and hands only those to the LLM.
+
+## 6. Common vector databases
+
+Pinecone · Weaviate · Qdrant · Milvus · Chroma · **pgvector** (a Postgres extension). Many teams start with **Postgres + pgvector** before moving to a dedicated vector DB.
+
+## 7. iOS engineer analogy
+
+Think of an embedding as:
+
+\`\`\`
+String → Embedding Model → [Float]
+\`\`\`
+
+...and vector search as:
+
+\`\`\`swift
+func findMostSimilar(
+    query: [Float],
+    documents: [[Float]]
+) -> [Document]
+\`\`\`
+
+...using cosine similarity, returning the highest-scoring documents. The full pipeline:
+
+\`\`\`
+User Question → Generate Embedding → Vector Search
+   → Relevant Documents → LLM → Answer
+\`\`\`
+
+---
+
+## Zooming in: how "split" and "embed" actually work
+
+### Step 1 — Split documents into chunks
+
+You usually **don't** embed a whole document as one vector. If someone asks "How many PTO days do I get?", you don't want to retrieve the entire 50-page handbook. So you split it:
+
+\`\`\`
+Chunk 1:  Vacation Policy — 15 PTO days per year...
+Chunk 2:  Health Benefits — medical coverage...
+Chunk 3:  Remote Work — up to 3 days remote...
+\`\`\`
+
+Each chunk is typically **200–500 words / 500–1000 tokens**, often with **overlap** so important information isn't cut in half:
+
+\`\`\`
+Chunk 1:  Paragraphs 1–5
+Chunk 2:  Paragraphs 4–8
+Chunk 3:  Paragraphs 7–11
+\`\`\`
+
+### Step 2 — Generate embeddings
+
+Each chunk is sent to an embedding model, which outputs a vector (maybe 1536 numbers):
+
+\`\`\`
+"Employees receive 15 PTO days per year."
+    → [0.284, -0.891, 0.442, ...]
+\`\`\`
+
+You don't care what the individual numbers mean. What matters is that related ideas land close together — "PTO policy" and "vacation days" end up as near-neighbors.
+
+**What the model is really doing** is a kind of *compression of meaning*. Conceptually (not literally), it turns the sentence into something like:
+
+\`\`\`
+{ topic: vacation, employment: yes, benefits: yes, time_off: high }
+\`\`\`
+
+...except represented as hundreds or thousands of numbers.
+
+### What gets stored
+
+Both the **original text** and its **vector**:
+
+| Chunk text | Embedding |
+|------------|-----------|
+| PTO policy | [0.2, 0.8, ...] |
+| Health benefits | [0.9, -0.1, ...] |
+| Remote work | [-0.4, 0.7, ...] |
+
+### At query time
+
+The question "How much vacation do employees get?" becomes a vector close to the PTO chunk. The database ranks by similarity:
+
+| Chunk | Similarity |
+|-------|-----------|
+| PTO Policy | 0.95 |
+| Health Benefits | 0.42 |
+| Remote Work | 0.11 |
+
+...and returns the top match, which is handed to the LLM.
+
+### The coding analogy
+
+\`\`\`swift
+struct Chunk {
+    let text: String
+    let embedding: [Float]
+}
+
+let queryEmbedding = embed(
+    "How many vacation days do employees get?"
+)
+
+for chunk in chunks {
+    score = cosineSimilarity(queryEmbedding, chunk.embedding)
+}
+// sort by score → return the highest
+\`\`\`
+
+The impressive part: **"vacation days" and "PTO" match even without sharing words**, because the embedding model learned those concepts are related and placed them near each other in vector space. That retrieval step is what lets AI assistants answer questions about your docs, codebase, Slack, or PDFs **without retraining the model**.`
+  },
+
+  {
     question: "Popularity of wifebeaters historically since inception, in a charted graph",
     date: "2026-09-15",
     tags: ["fashion", "history", "culture"],

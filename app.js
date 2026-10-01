@@ -47,6 +47,19 @@
 
       if (trimmed === "") { flushParagraph(para); i++; continue; }
 
+      // fenced code block ``` ... ``` (indentation preserved)
+      if (/^```/.test(trimmed)) {
+        flushParagraph(para);
+        i++;
+        var code = [];
+        while (i < lines.length && !/^```/.test(lines[i].trim())) {
+          code.push(lines[i]); i++;
+        }
+        i++; // skip closing fence
+        html.push("<pre><code>" + escapeHtml(code.join("\n")) + "</code></pre>");
+        continue;
+      }
+
       if (/^(-{3,}|\*{3,}|_{3,})$/.test(trimmed)) {
         flushParagraph(para); html.push("<hr />"); i++; continue;
       }
